@@ -316,9 +316,16 @@ public class MultiImageSelectorFragment extends Fragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+								
                 if (mTmpFile != null && mTmpFile.exists()) {
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                    startActivityForResult(intent, REQUEST_CAMERA);
+                    if (Build.VERSION.SDK_INT  >= 24) {
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        Uri contentUri = FileProvider.getUriForFile(getContext(),  "me.nereo.multi_image_selector.imgprovider", mTmpFile);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
+                    } else {
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    }
                 } else {
                     Toast.makeText(getActivity(), R.string.mis_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
